@@ -1,10 +1,12 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
+import update from 'react-addons-update';
 import './App.css';
 
 import * as d3 from 'd3';
 import _ from 'lodash';
 import async from 'async';
+import Immutable from 'immutable';
 
 class App extends Component {
     state = {results: [],
@@ -14,7 +16,8 @@ class App extends Component {
     componentDidMount() {
         d3.csv('http://swizec.github.io/h1b-software-salaries/data/h1bs.csv')
           .get((data) => {
-              this.setState({data: data});
+              this.setState({data: data,
+                             immutableData: Immutable.fromJS(data)});
 
               // poor man's force async
               setTimeout(this.experiment.bind(this), 0);
@@ -27,7 +30,8 @@ class App extends Component {
             '.map + lodash _.clone': (arr) => arr.map((d) => _.clone(d)),
             '.map + lodash _.assign': (arr) => arr.map((d) => _.assign({}, d)),
             'JSON string/parse': (arr) => JSON.parse(JSON.stringify(arr)),
-            '.map + Object.assign': (arr) => arr.map((d) => Object.assign({}, d))
+            '.map + Object.assign': (arr) => arr.map((d) => Object.assign({}, d)),
+            '.map + React\'s update()': (arr) => arr.map((d) => update({}, {$merge: d}))
         };
 
         const methods = Object.keys(experiments)
@@ -50,10 +54,12 @@ class App extends Component {
     }
 
     runner(name, method) {
+        let data = this.state.data;
+
         const times = d3.range(0, this.N).map(() => {
             const t1 = new Date();
 
-            let copy = method(this.state.data);
+            let copy = method(data);
 
             const t2 = new Date();
             return t2 - t1;
