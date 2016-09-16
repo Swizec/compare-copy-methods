@@ -2,6 +2,7 @@
   "name": "compare-copy-methods",
   "version": "0.0.1",
   "private": true,
+  "homepage": "http://swizec.github.io/compare-copy-methods",
   "devDependencies": {
     "react-scripts": "0.4.1"
   },
